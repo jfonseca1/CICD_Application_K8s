@@ -88,21 +88,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    
     - name: Setup kubeconfig
-      run: 
+      run: |
         mkdir -p $HOME/.kube
+        ls -l $HOME/.kube
         echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
-    - name: Install kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
-    - name: Verify kubectl
-      run: |
-        kubectl version --client
-    - name: Check ArgoCD status
-      run: |
-        kubectl get svc -n argocd  
+        ls -l $HOME/.kube
+        cat $HOME/.kube/config 
     - name: Create ArgoCD application
       run: |
         echo "
