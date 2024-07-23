@@ -78,6 +78,7 @@ jobs:
         env:
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
   deploy:
+    needs: modifygit
     runs-on: ubuntu-latest
     env:
       ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
