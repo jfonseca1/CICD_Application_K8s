@@ -77,7 +77,6 @@ jobs:
           git push origin main
         env:
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
-
       - name: Install ArgoCD CLI
         run: |
           curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
