@@ -104,11 +104,12 @@ jobs:
     - name: Check ArgoCD Status
       run: |
         kubectl get svc -n argocd
-        kubectl get pods -n argocd      
+        kubectl get pods -n argocd
+        sleep 60
     - name: Expose ArgoCD server
       run: |
         kubectl port-forward svc/argocd-server -n argocd 8082:443 &
-        sleep 10
+        sleep 60
 
     - name: Validate kubeconfig file
       run: |
