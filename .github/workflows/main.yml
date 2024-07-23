@@ -103,8 +103,7 @@ jobs:
         cat $HOME/.kube/config
     - name: Check ArgoCD Status
       run: |
-        kubectl get svc -n argocd
-        kubectl get pods -n argocd
+        kubectl get pods -A
         sleep 60
     - name: Expose ArgoCD server
       run: |
