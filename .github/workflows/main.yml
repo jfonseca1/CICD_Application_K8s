@@ -88,41 +88,29 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+    - name: Verify kubectl
+      run: |
+        kubectl version --client
     - name: Setup kubeconfig
       run: |
         mkdir -p $HOME/.kube
+        minikube kubectl -- config view --raw > $HOME/.kube/config
+        export KUBECONFIG=$HOME/.kube/config
+        kubectl config use-context docker-desktop
         ls -l $HOME/.kube
-        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
-        ls -l $HOME/.kube
-        cat $HOME/.kube/config 
+        cat $HOME/.kube/config
+
+    - name: Apply ArgoCD Application
+      run: |
+        kubectl apply -f python-app.yaml --validate=false
+
     - name: Check ArgoCD status
       run: |
         kubectl get svc -n argocd
         kubectl get pods -n argocd
         kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd
-    - name: Create ArgoCD application
-      run: |
-        echo "
-        apiVersion: argoproj.io/v1alpha1
-        kind: Application
-        metadata:
-          name: python-app
-          namespace: argocd
-        spec:
-          project: default
-          source:
-            repoURL: https://github.com/jfonseca1/App-Manifest-/
-            path: ./
-            targetRevision: HEAD
-          destination:
-            server: https://kubernetes.default.svc
-            namespace: default
-          syncPolicy:
-            automated:
-              prune: true
-              selfHeal: true
-                " > python-app.yaml   
-    - name: Apply ArgoCD Application
-      run: kubectl apply -f python-app.yaml
- 
