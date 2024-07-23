@@ -98,8 +98,7 @@ jobs:
     - name: Setup kubeconfig
       run: |
         mkdir -p $HOME/.kube
-        kubectl config view > $HOME/.kube/config
-        export KUBECONFIG=$HOME/.kube/config
+        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
         ls -l $HOME/.kube
         cat $HOME/.kube/config
     - name: Check ArgoCD Status
