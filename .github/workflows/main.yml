@@ -93,10 +93,12 @@ jobs:
       run: |
         curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
         chmod +x /usr/local/bin/argocd
-
+    - name: Test Connectivity
+      run: |
+        curl -v $ARGOCD_SERVER
     - name: Login to ArgoCD
       run: |
-        argocd login "localhost:8082" --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
 
     - name: Create ArgoCD application
       run: |
