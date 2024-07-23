@@ -99,7 +99,7 @@ jobs:
     - name: Setup kubeconfig
       run: |
         mkdir -p $HOME/.kube
-        kubectl -- config view --raw > $HOME/.kube/config
+        kubectl config view > $HOME/.kube/config
         export KUBECONFIG=$HOME/.kube/config
         ls -l $HOME/.kube
         cat $HOME/.kube/config
