@@ -77,3 +77,19 @@ jobs:
           git push origin main
         env:
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd-linux-amd64
+          sudo mv argocd-linux-amd64 /usr/local/bin/argocd
+      - name: Sync ArgoCD Application 
+        env:
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+          ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+        run: |
+          argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+          argocd app create python-app --repo https://github.com/jacinto1/App-Manifest- --path . --dest-server https://kubernetes.default.svc --dest-namespace default
+          argocd app sync python-app
+   
