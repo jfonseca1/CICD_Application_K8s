@@ -129,13 +129,11 @@ jobs:
 
     - name: Port Forward ArgoCD
       run: |
-        kubectl port-forward svc/argocd-server -n argocd 8082:8082 &
+        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
         sleep 30 # Allow some time for port forwarding to be established
     - name: Check ArgoCD status
       run: |
-        kubectl get svc -n argocd
-
-  
+        kubectl get svc -n argocd  
     - name: Install ArgoCD CLI
       run: |
         curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
@@ -143,11 +141,9 @@ jobs:
     - name: Login to ArgoCD
       run: |
         argocd login --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-
     - name: Create ArgoCD application
       run: |
         argocd app create python-app --repo https://github.com/jacinto1/App-Manifest- --path . --dest-server https://kubernetes.default.svc --dest-namespace default
-
     - name: Sync ArgoCD application
       run: |
         argocd app sync python-app
