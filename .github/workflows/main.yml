@@ -102,11 +102,10 @@ jobs:
         export KUBECONFIG=$HOME/.kube/config
         ls -l $HOME/.kube
         cat $HOME/.kube/config
-    - name: Check ArgoCD status
+    - name: Check ArgoCD Status
       run: |
         kubectl get svc -n argocd
-        kubectl get pods -n argocd
-        kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd    
+        kubectl get pods -n argocd      
     - name: Expose ArgoCD server
       run: |
         kubectl port-forward svc/argocd-server -n argocd 8082:443 &
@@ -141,5 +140,9 @@ jobs:
     - name: Apply ArgoCD Application
       run: |
         kubectl apply -f python-app.yaml 
-
+    - name: Check ArgoCD status
+      run: |
+        kubectl get svc -n argocd
+        kubectl get pods -n argocd
+        kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd  
     
