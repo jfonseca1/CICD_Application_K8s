@@ -96,7 +96,7 @@ jobs:
 
     - name: Login to ArgoCD
       run: |
-        argocd login localhost:8082 --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd login "localhost:8082" --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
 
     - name: Create ArgoCD application
       run: |
