@@ -140,7 +140,7 @@ jobs:
         chmod +x /usr/local/bin/argocd
     - name: Login to ArgoCD
       run: |
-        argocd login --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
     - name: Create ArgoCD application
       run: |
         argocd app create python-app --repo https://github.com/jacinto1/App-Manifest- --path . --dest-server https://kubernetes.default.svc --dest-namespace default
