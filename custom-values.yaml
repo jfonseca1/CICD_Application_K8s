@@ -1,0 +1,7 @@
+server:
+  service:
+    type: ClusterIP
+    port: 8082
+    targetPort: 8082
+  ingress:
+    enabled: false
