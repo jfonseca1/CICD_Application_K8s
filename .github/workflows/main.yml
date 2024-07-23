@@ -77,30 +77,30 @@ jobs:
           git push origin main
         env:
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
-    deploy:
-      runs-on: ubuntu-latest
-      env:
-        ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-        ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
-        ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
-  
-      steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-  
-      - name: Install ArgoCD CLI
-        run: |
-          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x /usr/local/bin/argocd
-  
-      - name: Login to ArgoCD
-        run: |
-          argocd login localhost:8082 --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-  
-      - name: Create ArgoCD application
-        run: |
-          argocd app create python-app --repo https://github.com/jacinto1/App-Manifest- --path . --dest-server https://kubernetes.default.svc --dest-namespace default
-  
-      - name: Sync ArgoCD application
-        run: |
-          argocd app sync python-app
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+      ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+      ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install ArgoCD CLI
+      run: |
+        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+        chmod +x /usr/local/bin/argocd
+
+    - name: Login to ArgoCD
+      run: |
+        argocd login localhost:8082 --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+
+    - name: Create ArgoCD application
+      run: |
+        argocd app create python-app --repo https://github.com/jacinto1/App-Manifest- --path . --dest-server https://kubernetes.default.svc --dest-namespace default
+
+    - name: Sync ArgoCD application
+      run: |
+        argocd app sync python-app
