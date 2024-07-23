@@ -47,8 +47,7 @@ jobs:
               username: ${{ secrets.DOCKER_USERNAME }}
               password: ${{ secrets.DOCKER_PASSWORD }}
 
-          -
-            name: Build and push
+          - name: Build and push
             uses: docker/build-push-action@v4
             with:
               context: .
@@ -103,6 +102,15 @@ jobs:
         export KUBECONFIG=$HOME/.kube/config
         ls -l $HOME/.kube
         cat $HOME/.kube/config
+    - name: Expose ArgoCD server
+      run: |
+        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
+        sleep 10
+
+    - name: Validate kubeconfig file
+      run: |
+        echo "Validating kubeconfig file"
+        kubectl cluster-info    
     - name: Create ArgoCD Application
       run: |
         echo "
