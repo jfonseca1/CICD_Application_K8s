@@ -106,7 +106,7 @@ jobs:
 
     - name: Apply ArgoCD Application
       run: |
-        kubectl apply -f python-app.yaml --validate=false
+        kubectl apply -f python-app.yaml 
 
     - name: Check ArgoCD status
       run: |
