@@ -88,15 +88,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Set up Minikube
-      run: |
-        curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        chmod +x minikube
-        sudo mv minikube /usr/local/bin/
-    - name: Start Minikube
-      run: |
-        minikube start --driver=docker --kubernetes-version=v1.23.0
-        kubectl config use-context minikube
+    - name: Setup kubeconfig
+      run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
     - name: Install kubectl
       run: |
         curl -LO "https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl"
@@ -105,45 +98,31 @@ jobs:
     - name: Verify kubectl
       run: |
         kubectl version --client
-    - name: Install Helm
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-    - name: Add ArgoCD Helm repository
-      run: |
-        helm repo add argo https://argoproj.github.io/argo-helm
-        helm repo update
-    - name: Create Helm values file
-      run: |
-        echo "
-        server:
-          service:
-            type: ClusterIP
-            port: 8082
-            targetPort: 8082
-          ingress:
-            enabled: false
-        " > custom-values.yaml
-    - name: Install ArgoCD
-      run: |
-        helm install argocd argo/argo-cd -n argocd --create-namespace -f custom-values.yaml
-
-    - name: Port Forward ArgoCD
-      run: |
-        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
-        sleep 30 # Allow some time for port forwarding to be established
     - name: Check ArgoCD status
       run: |
         kubectl get svc -n argocd  
-    - name: Install ArgoCD CLI
-      run: |
-        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-        chmod +x /usr/local/bin/argocd
-    - name: Login to ArgoCD
-      run: |
-        argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
     - name: Create ArgoCD application
       run: |
-        argocd app create python-app --repo https://github.com/jacinto1/App-Manifest- --path . --dest-server https://kubernetes.default.svc --dest-namespace default
-    - name: Sync ArgoCD application
-      run: |
-        argocd app sync python-app
+        echo "
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          name: python-app
+          namespace: argocd
+        spec:
+          project: default
+          source:
+            repoURL: https://github.com/jfonseca1/App-Manifest-/
+            path: ./
+            targetRevision: HEAD
+          destination:
+            server: https://kubernetes.default.svc
+            namespace: default
+          syncPolicy:
+            automated:
+              prune: true
+              selfHeal: true
+                " > python-app.yaml   
+    - name: Apply ArgoCD Application
+      run: kubectl apply -f python-app.yaml
+ 
