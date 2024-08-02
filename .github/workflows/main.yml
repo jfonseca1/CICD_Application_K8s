@@ -135,37 +135,14 @@ jobs:
     - name: Check Minikube Status
       run: |
         minikube status || exit 1
-
     - name: Expose ArgoCD server
       run: |
-        minikube service argocd-server -n argocd --url > url.txt
-        URL=$(cat url.txt)
-        echo "ArgoCD is accessible at $URL"
         kubectl port-forward svc/argocd-server -n argocd 8082:443 &
-        sleep 15
-
-    - name: Apply ArgoCD Application
-      run: |
-        kubectl apply -f python-app.yaml --validate=false
-
-    - name: Check ArgoCD status after applying application
-      run: |
-        kubectl get svc -n argocd
-        kubectl get pods -n argocd
-        kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd
+        sleep 60
     - name: Check ArgoCD Status
       run: |
         kubectl get pods -A
         sleep 60
-    - name: Expose ArgoCD server
-      run: |
-        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
-        sleep 60
-
-    - name: Validate kubeconfig file
-      run: |
-        echo "Validating kubeconfig file"
-        kubectl cluster-info dump    
     - name: Create ArgoCD Application
       run: |
         echo "
