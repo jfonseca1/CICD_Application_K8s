@@ -173,4 +173,5 @@ jobs:
         kubectl get svc -n argocd
         kubectl get pods -n argocd
         kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd  
-    
+        kubectl get pods -A
+        kubectl get deployments -A
