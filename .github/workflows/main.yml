@@ -97,10 +97,9 @@ jobs:
         kubectl version --client
     - name: Setup kubeconfig
       run: |
-        mkdir -p $HOME/.kube
-        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
-        ls -l $HOME/.kube
-        cat $HOME/.kube/config
+        mkdir ${HOME}/.kube
+        echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
+        cat ${HOME}/.kube/config
     - name: Check ArgoCD Status
       run: |
         kubectl get pods -A
