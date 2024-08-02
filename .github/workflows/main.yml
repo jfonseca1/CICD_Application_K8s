@@ -132,20 +132,6 @@ jobs:
     - name: Install ArgoCD
       run: |
         helm install argocd argo/argo-cd -n argocd --create-namespace -f custom-values.yaml
-
-    - name: Setup kubeconfig
-      run: |
-        mkdir -p $HOME/.kube
-        minikube kubectl -- config view --raw > $HOME/.kube/config
-        export KUBECONFIG=$HOME/.kube/config
-        kubectl config use-context minikube
-        kubectl config view
-
-    - name: Validate kubeconfig
-      run: |
-        echo "Validating kubeconfig file"
-        kubectl cluster-info || exit 1
-
     - name: Check Minikube Status
       run: |
         minikube status || exit 1
