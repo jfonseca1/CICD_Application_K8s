@@ -108,11 +108,65 @@ jobs:
     - name: Verify kubectl
       run: |
         kubectl version --client
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Add ArgoCD Helm repository
+      run: |
+        helm repo add argo https://argoproj.github.io/argo-helm
+        helm repo update
+
+    - name: Create Helm values file
+      run: |
+        echo "
+        server:
+          service:
+            type: NodePort
+            nodePort: 30882
+            targetPort: 8082
+          ingress:
+            enabled: false
+        " > custom-values.yaml
+
+    - name: Install ArgoCD
+      run: |
+        helm install argocd argo/argo-cd -n argocd --create-namespace -f custom-values.yaml
+
     - name: Setup kubeconfig
       run: |
-        mkdir ${HOME}/.kube
-        echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
-        cat ${HOME}/.kube/config
+        mkdir -p $HOME/.kube
+        minikube kubectl -- config view --raw > $HOME/.kube/config
+        export KUBECONFIG=$HOME/.kube/config
+        kubectl config use-context minikube
+        kubectl config view
+
+    - name: Validate kubeconfig
+      run: |
+        echo "Validating kubeconfig file"
+        kubectl cluster-info || exit 1
+
+    - name: Check Minikube Status
+      run: |
+        minikube status || exit 1
+
+    - name: Expose ArgoCD server
+      run: |
+        minikube service argocd-server -n argocd --url > url.txt
+        URL=$(cat url.txt)
+        echo "ArgoCD is accessible at $URL"
+        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
+        sleep 15
+
+    - name: Apply ArgoCD Application
+      run: |
+        kubectl apply -f python-app.yaml --validate=false
+
+    - name: Check ArgoCD status after applying application
+      run: |
+        kubectl get svc -n argocd
+        kubectl get pods -n argocd
+        kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd
     - name: Check ArgoCD Status
       run: |
         kubectl get pods -A
