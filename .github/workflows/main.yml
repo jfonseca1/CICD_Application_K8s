@@ -1,4 +1,4 @@
-nname: Run Kubernetes Commands
+name: Run Kubernetes Commands
 
 on:
   push:
