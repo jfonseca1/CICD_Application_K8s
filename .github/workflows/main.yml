@@ -1,177 +1,22 @@
-name: Python application
+nname: Run Kubernetes Commands
 
 on:
   push:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2    
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-  docker:
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
-          -
-            name: Checkout
-            uses: actions/checkout@v3
-          -
-            name: Set up QEMU
-            uses: docker/setup-qemu-action@v2
-          -
-            name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v2
-          -
-            name: Login to Docker Hub
-            uses: docker/login-action@v2
-            with:
-              username: ${{ secrets.DOCKER_USERNAME }}
-              password: ${{ secrets.DOCKER_PASSWORD }}
+  run-kubectl-commands:
+    runs-on: self-hosted  # This will use your self-hosted runner
 
-          - name: Build and push
-            uses: docker/build-push-action@v4
-            with:
-              context: .
-              push: true
-              tags: fjacinto349/images:app-${{ github.run_number }}
-  modifygit:
-    needs: docker
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        name: changing the deployment of git repo
-        with:
-          repository: 'jfonseca1/App-Manifest-'
-          token: ${{ secrets.REPOSITORY_TOKEN }}
-      - name: modify the image
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up kubectl and configure the cluster context
+      - name: Set up kubectl
         run: |
-          git config user.email fjacinto349@gmail.com
-          git config user.name jfonseca1
-          pwd
-          cat deployment.yaml
-          pwd
-          sed -i "s+fjacinto349/images.*+fjacinto349/images:app-$RUN_NUMBER+g" deployment.yaml
-          cat deployment.yaml
-          git add .
-          git commit -m 'Done  by Github Actions   Job changemanifest: ${{ github.run_number }}'
-          git push origin main
-        env:
-          github_token: ${{ secrets.REPOSITORY_TOKEN }}
-  deploy:
-    needs: modifygit
-    runs-on: ubuntu-latest
-    env:
-      ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-      ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
-      ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Set up Minikube
-      run: |
-        curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        chmod +x minikube
-        sudo mv minikube /usr/local/bin/
-
-    - name: Start Minikube
-      run: |
-        minikube start --driver=docker --kubernetes-version=v1.23.0
-        minikube update-context
-
-    - name: Wait for Minikube to be ready
-      run: sleep 60
-    - name: Install kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
-    - name: Verify kubectl
-      run: |
-        kubectl version --client
-    - name: Install Helm
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-    - name: Add ArgoCD Helm repository
-      run: |
-        helm repo add argo https://argoproj.github.io/argo-helm
-        helm repo update
-
-    - name: Create Helm values file
-      run: |
-        echo "
-        server:
-          service:
-            type: NodePort
-            nodePort: 30882
-            targetPort: 8082
-          ingress:
-            enabled: false
-        " > custom-values.yaml
-
-    - name: Install ArgoCD
-      run: |
-        helm install argocd argo/argo-cd -n argocd --create-namespace -f custom-values.yaml
-    - name: Check Minikube Status
-      run: |
-        minikube status || exit 1
-    - name: Expose ArgoCD server
-      run: |
-        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
-        sleep 60
-    - name: Check ArgoCD Status
-      run: |
-        kubectl get pods -A
-        sleep 60
-    - name: Create ArgoCD Application
-      run: |
-        echo "
-        apiVersion: argoproj.io/v1alpha1
-        kind: Application
-        metadata:
-          name: python-app
-          namespace: argocd
-        spec:
-          project: default
-          source:
-            repoURL: https://github.com/jfonseca1/App-Manifest-/
-            path: ./
-            targetRevision: HEAD
-          destination:
-            server: https://kubernetes.default.svc
-            namespace: default
-          syncPolicy:
-            automated:
-              prune: true
-              selfHeal: true
-        " > python-app.yaml
-    - name: Apply ArgoCD Application
-      run: |
-        kubectl apply -f python-app.yaml 
-    - name: Check ArgoCD status
-      run: |
-        kubectl get svc -n argocd
-        kubectl get pods -n argocd
-        kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd  
-        kubectl get pods -A
-        kubectl get deployments -A
+          echo "Setting up kubectl"
+          kubectl version --client  # Check kubectl version
+          kubectl get nodes  # List the nodes in the Kubernetes cluster
