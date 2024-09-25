@@ -10,13 +10,11 @@ jobs:
     runs-on: self-hosted  # This will use your self-hosted runner
 
     steps:
-      # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up kubectl and configure the cluster context
-      - name: Set up kubectl
+      - name: Run a batch script
         run: |
-          echo "Setting up kubectl"
-          kubectl version --client  # Check kubectl version
-          kubectl get nodes  # List the nodes in the Kubernetes cluster
+          echo Running commands on Windows VM
+          dir
+          echo Script finished
