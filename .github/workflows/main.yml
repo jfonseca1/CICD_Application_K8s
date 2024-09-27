@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2    
     - name: Set up Python 3.10
@@ -78,7 +78,7 @@ jobs:
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
   deploy:
     needs: modifygit
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
       ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
