@@ -1,10 +1,11 @@
-FROM python:3.8-slim-buster
+FROM python:3.7-slim
 
-WORKDIR /app
+# Add requirements file in the container
+COPY requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+# Add source code in the container
+COPY main.py ./main.py
 
-COPY . .
-
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+# Define container entry point (could also work with CMD python main.py)
+ENTRYPOINT ["python", "main.py"]
