@@ -11,4 +11,4 @@ RUN pip3 install --no-cache-dir Flask==2.2.2 Werkzeug==2.2.2
 
 COPY . .
 
-CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
+CMD ["python3", "-m", "app.py", "run", "--host=0.0.0.0"]
