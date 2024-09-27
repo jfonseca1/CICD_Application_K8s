@@ -87,58 +87,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Set up Minikube
-      run: |
-        curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        chmod +x minikube
-        sudo mv minikube /usr/local/bin/
-
-    - name: Start Minikube
-      run: |
-        minikube start --driver=docker --kubernetes-version=v1.23.0
-        minikube update-context
-
-    - name: Wait for Minikube to be ready
-      run: sleep 60
-    - name: Install kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
-    - name: Verify kubectl
-      run: |
-        kubectl version --client
-    - name: Install Helm
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-    - name: Add ArgoCD Helm repository
-      run: |
-        helm repo add argo https://argoproj.github.io/argo-helm
-        helm repo update
-
-    - name: Create Helm values file
-      run: |
-        echo "
-        server:
-          service:
-            type: NodePort
-            nodePort: 30882
-            targetPort: 8082
-          ingress:
-            enabled: false
-        " > custom-values.yaml
-
-    - name: Install ArgoCD
-      run: |
-        helm install argocd argo/argo-cd -n argocd --create-namespace -f custom-values.yaml
-    - name: Check Minikube Status
-      run: |
-        minikube status || exit 1
-    - name: Expose ArgoCD server
-      run: |
-        kubectl port-forward svc/argocd-server -n argocd 8082:443 &
-        sleep 60
     - name: Check ArgoCD Status
       run: |
         kubectl get pods -A
@@ -170,8 +118,8 @@ jobs:
         kubectl apply -f python-app.yaml 
     - name: Check ArgoCD status
       run: |
-        kubectl get svc -n argocd
-        kubectl get pods -n argocd
-        kubectl logs -l app.kubernetes.io/name=argocd-server -n argocd  
+        kubectl get svc
+        kubectl get pods
+        kubectl logs -l app.kubernetes.io/name=argo-argocd-server 
         kubectl get pods -A
         kubectl get deployments -A
