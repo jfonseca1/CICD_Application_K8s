@@ -1,21 +1,14 @@
-# syntax=docker/dockerfile:1
-FROM python:3.10.11-alpine
+FROM python:3.8-slim-buster
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies required for building Python packages
-RUN apk add --no-cache gcc musl-dev libc-dev
+# Install pip
+RUN apt-get update && apt-get install -y python3-pip
 
-# Copy and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir Flask==2.2.2 Werkzeug==2.2.2
 
-# Copy the rest of the application code
 COPY . .
 
-# Expose Flask's default port
-EXPOSE 5000
-
-# Run the application using Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
