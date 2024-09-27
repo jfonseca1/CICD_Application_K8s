@@ -98,7 +98,7 @@ jobs:
         kind: Application
         metadata:
           name: python-app
-          namespace: argocd
+          namespace: default
         spec:
           project: default
           source:
