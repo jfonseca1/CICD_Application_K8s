@@ -61,11 +61,6 @@ jobs:
               echo "Container ID: $container_id"
               echo "::set-output name=container_id::$container_id"
     
-          - name: Wait for the container to finish
-            run: |
-              # Wait for the container to complete (you can modify this based on your needs)
-              docker wait ${{ steps.run-container.outputs.container_id }}
-    
           - name: Capture Logs from Docker Container
             run: |
               # Get the logs of the running container
