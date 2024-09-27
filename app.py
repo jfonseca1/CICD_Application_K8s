@@ -1,7 +1,5 @@
 # Python file (app.py)
 from flask import Flask
-from urllib.parse import quote as url_quote
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -17,7 +15,3 @@ def hello_world():
 </body>
 </html>
 '''
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
