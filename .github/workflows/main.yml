@@ -53,19 +53,7 @@ jobs:
               context: .
               push: true
               tags: fjacinto349/images:app-1
-          - name: Run Docker Container
-            id: run-container
-            run: |
-              # Run the container in the background and save the container ID
-              container_id=$(docker run -d fjacinto349/images:app-1)
-              echo "Container ID: $container_id"
-              echo "::set-output name=container_id::$container_id"
-    
-          - name: Capture Logs from Docker Container
-            run: |
-              # Get the logs of the running container
-              echo "Container Logs:"
-              docker logs ${{ steps.run-container.outputs.container_id }}   
+   
   modifygit:
     needs: docker
     runs-on: ubuntu-latest
