@@ -111,7 +111,7 @@ jobs:
         kind: Application
         metadata:
           name: python-app
-          namespace: default
+          namespace: argocd
         spec:
           project: default
           source:
@@ -133,6 +133,6 @@ jobs:
       run: |
         kubectl get svc
         kubectl get pods
-        kubectl logs -l app.kubernetes.io/name=argo-argocd-server 
+        kubectl logs -l app.kubernetes.io/name=argocd-server 
         kubectl get pods -A
         kubectl get deployments -A
