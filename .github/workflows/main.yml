@@ -29,6 +29,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
    
   delete-image:
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -42,7 +43,7 @@ jobs:
         docker rmi ghcr.io/fjacinto349/images:app-1
         docker logout
   docker:
-        needs: build
+        needs: delete-image
         runs-on: ubuntu-latest
         steps:
           -
