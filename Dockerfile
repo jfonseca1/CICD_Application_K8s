@@ -1,11 +1,6 @@
-FROM python:3.7-slim
-
-# Add requirements file in the container
-COPY requirements.txt ./requirements.txt
-RUN pip install -r requirements.txt
-
-# Add source code in the container
-COPY main.py ./main.py
-
-# Define container entry point (could also work with CMD python main.py)
-ENTRYPOINT ["python", "main.py"]
+FROM python:3.9 
+# Or any preferred Python version.
+ADD main.py .
+RUN pip install requests beautifulsoup4 python-dotenv
+CMD [“python”, “./main.py”] 
+# Or enter the name of your unique directory and parameter set.
