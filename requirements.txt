@@ -1,5 +1,5 @@
 Flask==2.3.2
-Werkzeug==1.0.1  # Add this line
+Werkzeug==2.3.3 # Add this line
 
 
 
